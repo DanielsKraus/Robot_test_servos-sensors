@@ -26,50 +26,11 @@ int ccw;  // delay is set for degrees going counter clock wise
 int cw;   // delay is set for degrees going clock wise
 int pos_1 = 0;  // servo position left
 int pos_2 = 0;  // servo position right
-int buttonState1 = 0;
-int buttonState2 = 0;
 int objectLeft = 0;  // if hits object on the left changes
 int objectRight = 0;  // if hits object on the right changes
 
 ///////////////////////////////////////////////////////////////////////////////
 
-void setup()
-{
-  Serial.begin(9600);
-  pinMode(trigPin, OUTPUT); 
-  pinMode(echoPin, INPUT);      
-  pinMode(buttonLeft, INPUT);
-  pinMode(buttonRight, INPUT);
-  servoLeft.attach(9);
-  servoRight.attach(10);
-  while (!compass.begin())
-  {
-    Serial.println("Could not find a valid HMC5883L sensor, check wiring!");
-    delay(500);
-  }
-  // Set measurement range
-  compass.setRange(HMC5883L_RANGE_1_3GA);
-  // Set measurement mode
-  compass.setMeasurementMode(HMC5883L_CONTINOUS);
-  // Set data rate
-  compass.setDataRate(HMC5883L_DATARATE_30HZ);
-  // Set number of samples averaged
-  compass.setSamples(HMC5883L_SAMPLES_8);
-  // Set calibration offset. See HMC5883L_calibration.ino
-  compass.setOffset(0, 0);
-}
-
-//////////////////////////////////////////////////////////////////
-void loop()
-{
-  ping();
-  hitSensor1();
-  hitSensor2();
-  compass1();
-  
-}
-
-///////////////////////////////////////////////////////////////////
 void servo_left()
 {
   servoLeft.write(pos_1);
@@ -82,21 +43,13 @@ void servo_right()
 }
 void hitSensor1()
 {
-  buttonState1 = digitalRead(buttonLeft);
-  if(buttonState1 == HIGH)
-  {
-    Serial.println(objectLeft);
-    Serial.println("left sensor");
-  }
+  Serial.println(objectLeft);
+  Serial.println("left sensor");
 }
 void hitSensor2()
 {
-  buttonState2 = digitalRead(buttonRight);
-  if(buttonState2 == HIGH)
-  {
-    Serial.println(objectRight);
-    Serial.println("right sensor");
-  }
+  Serial.println(objectRight);
+  Serial.println("right sensor");
 }
 
 void compass1()
@@ -138,3 +91,41 @@ void ping()
   Serial.print("Distance: ");
   Serial.println(distance);
 }
+
+/////////////////////////////////////////////////////////////////
+void setup()
+{
+  Serial.begin(9600);
+  pinMode(trigPin, OUTPUT); 
+  pinMode(echoPin, INPUT);      
+  pinMode(buttonLeft, INPUT);
+  pinMode(buttonRight, INPUT);
+  attachInterrupt(buttonLeft,hitSensor1,RISING);
+  attachInterrupt(buttonRight,hitSensor2,RISING);
+  servoLeft.attach(9);
+  servoRight.attach(10);
+  while (!compass.begin())
+  {
+    Serial.println("Could not find a valid HMC5883L sensor, check wiring!");
+    delay(500);
+  }
+  // Set measurement range
+  compass.setRange(HMC5883L_RANGE_1_3GA);
+  // Set measurement mode
+  compass.setMeasurementMode(HMC5883L_CONTINOUS);
+  // Set data rate
+  compass.setDataRate(HMC5883L_DATARATE_30HZ);
+  // Set number of samples averaged
+  compass.setSamples(HMC5883L_SAMPLES_8);
+  // Set calibration offset. See HMC5883L_calibration.ino
+  compass.setOffset(0, 0);
+}
+
+//////////////////////////////////////////////////////////////////
+void loop()
+{
+  ping();
+  compass1();
+}
+
+///////////////////////////////////////////////////////////////////
