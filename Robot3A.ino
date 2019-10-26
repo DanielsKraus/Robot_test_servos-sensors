@@ -20,15 +20,18 @@ const int buttonRight = 3; // button right
 const int SDA = 4; // compass SDA
 const int SCL = 5; // compass SCL
 
+String control;
 long duration;
 int distance;
-int ccw;  // delay is set for degrees going counter clock wise
-int cw;   // delay is set for degrees going clock wise
+int val,prevVal;
+int ccw=67;  // delay is set for degrees going counter clock wise
+int cw=56;   // delay is set for degrees going clock wise
 int pos_1 = 0;  // servo position left
 int pos_2 = 0;  // servo position right
 int objectLeft = 0;  // if hits object on the left changes
 int objectRight = 0;  // if hits object on the right changes
-
+boolean finished = false;
+String parts[3] = {"servo 1","servo 2"};
 ///////////////////////////////////////////////////////////////////////////////
 
 void servo_left()
@@ -91,6 +94,36 @@ void ping()
   Serial.print("Distance: ");
   Serial.println(distance);
 }
+void getVal()
+{
+  control = Serial.readString();
+  for(int i=0;i<=parts.length();i++) 
+  {
+    if(control==parts[i])
+    {
+      while(finished==false)
+      {
+        val = Serial.read();
+        delay(1000);
+        if(val==prevVal)
+        {
+          finished = false;
+        }
+        else
+        {
+          delay(1000);
+          if(parts[i]=="servo 1")
+            pos_1 = val;
+          else if(parts[i]=="servo 2")
+            pos_2 = val;
+          
+          finished = true;
+        }
+        prevVal = val;
+      }
+    }
+  }
+}
 
 /////////////////////////////////////////////////////////////////
 void setup()
@@ -124,6 +157,12 @@ void setup()
 //////////////////////////////////////////////////////////////////
 void loop()
 {
+  if (Serial.available() > 0)
+  {
+    getVal();
+  }
+  servo_left();
+  servo_right();
   ping();
   compass1();
 }
