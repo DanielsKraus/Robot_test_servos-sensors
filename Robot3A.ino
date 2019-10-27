@@ -101,6 +101,8 @@ void getVal()
   {
     if(control==parts[i])
     {
+      Serial.print(parts[i]);
+      Serial.println(" selected");
       while(finished==false)
       {
         val = Serial.parseInt();
