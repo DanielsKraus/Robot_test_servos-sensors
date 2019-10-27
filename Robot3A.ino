@@ -103,7 +103,7 @@ void getVal()
     {
       while(finished==false)
       {
-        val = Serial.read();
+        val = Serial.parseInt();
         delay(1000);
         if(val==prevVal)
         {
